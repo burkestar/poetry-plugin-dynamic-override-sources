@@ -1,17 +1,17 @@
 [tool.poetry]
-name = "poetry-plugin-pypi-mirror"
+name = "poetry-plugin-use-pip-global-index-url"
 version = "0.1.0"
-description = "Poetry plugin that adds support for pypi.org mirrors and pull-through caches"
-authors = ["Jacob Henner <code@ventricle.us>"]
+description = "Poetry plugin that sets the global index with the value obtained from pip."
+authors = ["Jacob Henner <code@ventricle.us>", "Hugh Baxter <hughdbaxter@gmail.com>"]
 license = "BSD-3-Clause"
-keywords = ["packaging", "poetry", "pypi"]
+keywords = ["packaging", "poetry", "pypi", "pip"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
 poetry = "^1.2.1"
 
 [tool.poetry.plugins."poetry.plugin"]
-demo = "poetry_plugin_pypi_mirror.plugins:PyPIMirrorPlugin"
+demo = "poetry_plugin_use_pip_global_index_url.plugins:UsePipGlobalIndexUrlPlugin"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
@@ -24,7 +24,7 @@ pre-commit = "^2.20.0"
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-src_paths = ["src/poetry_plugin_pypi_mirror", "tests"]
+src_paths = ["src/poetry_plugin_use_pip_global_index_url", "tests"]
 
 [tool.pylint.messages_control]
 disable = "C0330, C0326"

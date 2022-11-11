@@ -15,7 +15,7 @@ from poetry.repositories.pypi_repository import PyPiRepository
 DEFAULT_REPO_NAME = "PyPI"
 
 
-class PyPIMirrorPlugin(Plugin):
+class UsePipGlobalIndexUrlPlugin(Plugin):
     # If pypi.org and common mirroring/pull-through-cache software used the same
     # standard API this plugin could simply modify the URL used by
     # PyPiRepository. Unfortunately, PyPiRepository uses the unstable
@@ -23,9 +23,9 @@ class PyPIMirrorPlugin(Plugin):
     # through standards compliance we replace the pypi.org PyPiRepository with a
     # (modified) LegacyRepository - which uses the PEP 503 API.
     def activate(self, poetry: Poetry, io: IO):
-        pypi_mirror_url = os.environ.get("POETRY_PYPI_MIRROR_URL")
-
-        if not pypi_mirror_url:
+        pip_global_index_url = os.popen("pip config get global.index-url").read().strip()
+        
+        if not pip_global_index_url:
             return
 
         for idx, repo in enumerate(poetry.pool.repositories):
@@ -34,7 +34,7 @@ class PyPIMirrorPlugin(Plugin):
                 # maintain repository precedence
                 poetry.pool.repositories[idx] = SourceStrippedLegacyRepository(
                     DEFAULT_REPO_NAME,
-                    pypi_mirror_url,
+                    pip_global_index_url,
                     config=poetry.config,
                     disable_cache=repo._disable_cache,
                 )

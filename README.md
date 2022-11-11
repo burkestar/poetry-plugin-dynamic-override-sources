@@ -1,8 +1,8 @@
-# poetry-plugin-pypi-mirror
+# poetry-plugin-use-pip-global-index-url
 
 ## Description
 
-*poetry-plugin-pypi-mirror* is a
+*poetry-plugin-use-pip-global-index-url* is a
 [plugin](https://python-poetry.org/docs/master/plugins/) for
 [poetry](https://python-poetry.org/), the Python packaging and dependency
 manager. It enables poetry to substitute connections to pypi.org with
@@ -28,7 +28,7 @@ they want to contribute their changes back to the project. This is suboptimal.
 
 ### Installation
 
-Follow poetry's [plugin installation instructions](https://python-poetry.org/docs/master/plugins/#using-plugins), replacing `poetry-plugin` with `poetry-plugin-pypi-mirror`.
+Follow poetry's [plugin installation instructions](https://python-poetry.org/docs/master/plugins/#using-plugins), replacing `poetry-plugin` with `poetry-plugin-use-pip-global-index-url`.
 
 ### Specifying a mirror
 
