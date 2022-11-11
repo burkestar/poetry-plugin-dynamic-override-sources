@@ -5,11 +5,12 @@
 *poetry-plugin-use-pip-global-index-url* is a
 [plugin](https://python-poetry.org/docs/master/plugins/) for
 [poetry](https://python-poetry.org/), the Python packaging and dependency
-manager. It enables poetry to substitute connections to pypi.org with
-connections to a pypi.org mirror or pull-through cache **without requiring
+manager. It has poetry substitute the default connection to pypi.org with
+a connection to a pypi.org mirror or pull-through cache defined in the global pip config (i.e. the result of ``pip config get global.index-url``) **without requiring
 project configuration changes**. This is ideal for situations where an
 access-restricted or otherwise unsuitable-for-general-use pypi.org mirror must
-be used by a subset of project contributors. For example:
+be used by a subset of project contributors, and is managed in the pip config.
+For example:
 
 * A private PyPI mirror internal to a business, required by company policy
 * A limited-access PyPI mirror in a region where pypi.org is restricted
@@ -30,24 +31,9 @@ they want to contribute their changes back to the project. This is suboptimal.
 
 Follow poetry's [plugin installation instructions](https://python-poetry.org/docs/master/plugins/#using-plugins), replacing `poetry-plugin` with `poetry-plugin-use-pip-global-index-url`.
 
-### Specifying a mirror
-
-To specify a mirror, set environment variable `POETRY_PYPI_MIRROR_URL` to the
-full URL for a [PEP 503](https://peps.python.org/pep-0503/)-compatible mirror.
-
-For example:
-
-```shell
-POETRY_PYPI_MIRROR_URL=https://example.org/repository/pypi-proxy/simple/ poetry add pendulum
-```
-...or...
-
-```shell
-export POETRY_PYPI_MIRROR_URL=https://example.org/repository/pypi-proxy/simple/
-poetry add cleo # uses mirror specified in first line
-poetry lock     # also uses mirror specified in first line
-```
 
 ## See also
+
+* [poetry-plugin-pypi-mirror](https://github.com/arcesium/poetry-plugin-pypi-mirror) - original plugin which this plugin is forked from
 
 * [python-poetry/poetry#1632](https://github.com/python-poetry/poetry/issues/1632) - poetry feature request to add support for global repository URL replacement
