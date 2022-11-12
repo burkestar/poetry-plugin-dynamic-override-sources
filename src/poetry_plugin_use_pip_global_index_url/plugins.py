@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from cleo.io.io import IO
 from poetry.core.packages.package import Package
 from poetry.core.semver.version import Version
@@ -9,6 +7,7 @@ from poetry.plugins.plugin import Plugin
 from poetry.poetry import Poetry
 from poetry.repositories.legacy_repository import LegacyRepository
 from poetry.repositories.pypi_repository import PyPiRepository
+from subprocess import PIPE, Popen
 
 # Hopefully the default repo name never changes. It'd be nice if this value was
 # exposed in poetry as a constant.
@@ -23,11 +22,17 @@ class UsePipGlobalIndexUrlPlugin(Plugin):
     # through standards compliance we replace the pypi.org PyPiRepository with a
     # (modified) LegacyRepository - which uses the PEP 503 API.
     def activate(self, poetry: Poetry, io: IO):
-        pip_global_index_url = os.popen("pip config get global.index-url").read().strip()
-        
+        # Using Popen like this silences any stderr when global.index-url can't be found.
+        pip_global_index_url_out = Popen("pip config get global.index-url", shell=True, stdout=PIPE, stderr=PIPE)
+        pip_global_index_url, stderr = pip_global_index_url_out.communicate()
+        pip_global_index_url = pip_global_index_url.decode().strip()
+
         if not pip_global_index_url:
             return
 
+        # It would be nice to print something out to say that we're using the index
+        # at the url specified in pip config, but printing things here interferes with
+        # outputs from other poetry commands.
         for idx, repo in enumerate(poetry.pool.repositories):
             if repo.name == DEFAULT_REPO_NAME and isinstance(repo, PyPiRepository):
                 # We preserve the ordering of poetry.pool.repositories to

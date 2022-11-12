@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poetry-plugin-use-pip-global-index-url"
-version = "0.1.0"
+version = "0.1.1"
 description = "Poetry plugin that sets the global index with the value obtained from pip."
 authors = ["Jacob Henner <code@ventricle.us>", "Hugh Baxter <hughdbaxter@gmail.com>"]
 license = "BSD-3-Clause"
