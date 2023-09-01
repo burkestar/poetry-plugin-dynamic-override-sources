@@ -1,14 +1,17 @@
 [tool.poetry]
 name = "poetry-plugin-use-pip-global-index-url"
-version = "0.2.2"
+version = "0.2.3"
 description = "Poetry plugin that sets the global index with the value obtained from pip."
-authors = ["Jacob Henner <code@ventricle.us>", "Hugh Baxter <hughdbaxter@gmail.com>"]
+authors = [
+  "Jacob Henner <code@ventricle.us>",
+  "Hugh Baxter <hughdbaxter@gmail.com>",
+]
 license = "BSD-3-Clause"
 keywords = ["packaging", "poetry", "pypi", "pip"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-poetry = ">=1.3.0,<1.6"
+poetry = ">=1.3.0,<1.7"
 
 [tool.poetry.plugins."poetry.plugin"]
 demo = "poetry_plugin_use_pip_global_index_url.plugins:UsePipGlobalIndexUrlPlugin"
@@ -33,9 +36,7 @@ disable = "C0330, C0326"
 max-line-length = "88"
 
 [[tool.mypy.overrides]]
-module = [
-  'cleo.*',
-]
+module = ['cleo.*']
 ignore_missing_imports = true
 
 [build-system]

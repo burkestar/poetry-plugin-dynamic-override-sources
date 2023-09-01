@@ -3,7 +3,7 @@ from __future__ import annotations
 from cleo.io.io import IO
 from poetry.config.config import Config
 from poetry.core.packages.package import Package
-from poetry.core.semver.version import Version
+from poetry.core.constraints.version import Version
 from poetry.plugins.plugin import Plugin
 from poetry.poetry import Poetry
 from poetry.repositories.legacy_repository import LegacyRepository
