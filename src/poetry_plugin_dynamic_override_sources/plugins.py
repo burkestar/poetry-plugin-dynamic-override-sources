@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from subprocess import PIPE, Popen
+import os
+import re
 
 from cleo.io.io import IO
 from poetry.config.config import Config
@@ -12,9 +13,27 @@ from poetry.repositories.legacy_repository import LegacyRepository
 from poetry.repositories.pypi_repository import PyPiRepository
 from poetry.repositories.repository_pool import Priority
 
-# Hopefully the default repo name never changes. It'd be nice if this value was
-# exposed in poetry as a constant.
-DEFAULT_REPO_NAME = "PyPI"
+PYPI_SOURCE = 'PyPI'
+
+
+def parse_environment_variables() -> dict:
+    """ Parse environment variables for configuration of source URLs.
+
+    `PIP_INDEX_URL` will override PyPI source
+    `POETRY_SOURCE_FOO_URL` will override the URL for source `FOO`
+    """
+    source_urls = {}
+
+    for key, val in os.environ.items():
+        if key == 'PIP_INDEX_URL':
+            source_urls[PYPI_SOURCE] = val
+
+        match = re.match('^POETRY_SOURCE_(.*)_URL', key)
+        if match:
+            source_name = match.groups()[0]
+            source_urls[source_name] = val
+
+    return source_urls
 
 
 class DynamicOverrideSourcesPlugin(Plugin):
@@ -25,44 +44,28 @@ class DynamicOverrideSourcesPlugin(Plugin):
     # through standards compliance we replace the pypi.org PyPiRepository with a
     # (modified) LegacyRepository - which uses the PEP 503 API.
     def activate(self, poetry: Poetry, io: IO):
-        # Using Popen like this silences any stderr when global.index-url can't be found.
-        pip_global_index_url_out = Popen("pip config get global.index-url", shell=True, stdout=PIPE, stderr=PIPE)
-        pip_global_index_url, stderr = pip_global_index_url_out.communicate()
-        pip_global_index_url = pip_global_index_url.decode().strip()
 
-        if not pip_global_index_url:
-            return
+        source_urls = parse_environment_variables()
 
-        # It would be nice to print something out to say that we're using the index
-        # at the url specified in pip config, but printing things here interferes with
-        # outputs from other poetry commands.
+        for source_name, url in source_urls.items():
+            # get the existing repository
+            repo = poetry.pool._repositories.get(source_name)
 
-        # All keys are lowercased in public functions
-        repo_key = DEFAULT_REPO_NAME.lower()
+            if repo is None or not isinstance(repo.repository, PyPiRepository):
+                continue
 
-        pypi_prioritized_repository = poetry.pool._repositories.get(repo_key)
-
-        if pypi_prioritized_repository is None or not isinstance(
-            pypi_prioritized_repository.repository, PyPiRepository
-        ):
-            return
-
-        replacement_repository = SourceStrippedLegacyRepository(
-            DEFAULT_REPO_NAME,
-            pip_global_index_url,
-            config=poetry.config,
-            disable_cache=pypi_prioritized_repository.repository._disable_cache,
-        )
-
-        priority = pypi_prioritized_repository.priority
-
-        poetry.pool.remove_repository(DEFAULT_REPO_NAME)
-        poetry.pool.add_repository(
-            repository=replacement_repository,
-            default=priority == Priority.DEFAULT,
-            secondary=priority == Priority.SECONDARY,
-        )
-
+            # remove the existing repo and then add a new one to replace it
+            poetry.pool.remove_repository(source_name)
+            poetry.pool.add_repository(
+                repository=SourceStrippedLegacyRepository(
+                    source_name,
+                    url,
+                    config=poetry.config,
+                    disable_cache=repo.repository._disable_cache,
+                ),
+                default=(repo.priority == Priority.DEFAULT),
+                secondary=(repo.priority == Priority.SECONDARY),
+            )
 
 class SourceStrippedLegacyRepository(LegacyRepository):
     def __init__(
