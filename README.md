@@ -14,6 +14,11 @@ or environment variables such as:
 However, with poetry there is no such option.  The pyproject.toml project configuration specifies one or more
 [sources](https://python-poetry.org/docs/repositories/#package-sources) that are to be used for resolving packages from the artifact storage.
 
+This plugin makes it possible to use environment variable overrides like:
+
+- `PIP_INDEX_URL` will override `PyPI` source
+- `POETRY_SOURCE_FOO_URL` will override the source named `FOO` with the specified url
+
 ## Usage
 
 ### Installation
@@ -23,6 +28,10 @@ See [plugin installation instructions](https://python-poetry.org/docs/plugins#us
 ```bash
 $POETRY_HOME/bin/pip install --user git+https://github.com/burkestar/poetry-plugin-dynamic-override-sources
 ```
+
+### Configuration
+
+
 
 ## Development
 
