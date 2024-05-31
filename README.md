@@ -24,8 +24,22 @@ See [plugin installation instructions](https://python-poetry.org/docs/plugins#us
 $POETRY_HOME/bin/pip install --user git+https://github.com/burkestar/poetry-plugin-dynamic-override-sources
 ```
 
+## Development
 
-## See also
+Setup
+
+```bash
+poetry install
+```
+
+Testing
+
+```bash
+poetry run pytest
+```
+
+
+## Links
 
 - [poetry-plugin-use-pip-global-index-url](https://github.com/BaxHugh/poetry-plugin-use-pip-global-index-url) - plugin that this was forked from
 - [poetry-plugin-pypi-mirror](https://github.com/arcesium/poetry-plugin-pypi-mirror) - upstream plugin that inspired `poetry-plugin-use-pip-global-index-url`.
