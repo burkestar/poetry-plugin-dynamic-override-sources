@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from subprocess import PIPE, Popen
+
 from cleo.io.io import IO
 from poetry.config.config import Config
-from poetry.core.packages.package import Package
 from poetry.core.constraints.version import Version
+from poetry.core.packages.package import Package
 from poetry.plugins.plugin import Plugin
 from poetry.poetry import Poetry
 from poetry.repositories.legacy_repository import LegacyRepository
 from poetry.repositories.pypi_repository import PyPiRepository
-from subprocess import PIPE, Popen
 from poetry.repositories.repository_pool import Priority
 
 # Hopefully the default repo name never changes. It'd be nice if this value was
@@ -16,7 +17,7 @@ from poetry.repositories.repository_pool import Priority
 DEFAULT_REPO_NAME = "PyPI"
 
 
-class UsePipGlobalIndexUrlPlugin(Plugin):
+class DynamicOverrideSourcesPlugin(Plugin):
     # If pypi.org and common mirroring/pull-through-cache software used the same
     # standard API this plugin could simply modify the URL used by
     # PyPiRepository. Unfortunately, PyPiRepository uses the unstable
