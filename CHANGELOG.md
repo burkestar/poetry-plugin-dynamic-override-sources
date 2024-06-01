@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+
+- Improve packaging to include link to repo and changelog
+
 ## 0.0.4
 
 - Update README about installing using `poetry self add`, and how to publish to PyPI.
