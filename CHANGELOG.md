@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4
+
+- Update README about installing using `poetry self add`, and how to publish to PyPI.
+
 ## 0.0.3
 
 - Supports environment variable `PIP_INDEX_URL` to override the url for all sources

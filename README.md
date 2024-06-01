@@ -24,11 +24,11 @@ This plugin makes it possible to use environment variable overrides like:
 
 ### Installation
 
-See [plugin installation instructions](https://python-poetry.org/docs/plugins#using-plugins).
-
 ```bash
-$POETRY_HOME/bin/pip install --user git+https://github.com/burkestar/poetry-plugin-dynamic-override-sources
+poetry self add poetry-plugin-dynamic-override-sources
 ```
+
+See [plugin installation instructions](https://python-poetry.org/docs/plugins#using-plugins).
 
 ## Development
 
