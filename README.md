@@ -16,8 +16,9 @@ However, with poetry there is no such option.  The pyproject.toml project config
 
 This plugin makes it possible to use environment variable overrides like:
 
-- `PIP_INDEX_URL` will override `PyPI` source
-- `POETRY_SOURCE_FOO_URL` will override the source named `FOO` with the specified url
+- `PIP_INDEX_URL` will override ALL repository urls, intending to function similar to `pip install --index-url`
+- `POETRY_SOURCE_SOME_REPO_URL` will override the source named `some-repo` with the specified url
+- `POETRY_SOURCE_PYPI_URL` will override the `PyPI` repository's URL.  This is a special case.
 
 ## Usage
 
@@ -28,10 +29,6 @@ See [plugin installation instructions](https://python-poetry.org/docs/plugins#us
 ```bash
 $POETRY_HOME/bin/pip install --user git+https://github.com/burkestar/poetry-plugin-dynamic-override-sources
 ```
-
-### Configuration
-
-
 
 ## Development
 
@@ -47,6 +44,11 @@ Testing
 poetry run pytest
 ```
 
+## Publishing
+
+```bash
+poetry publish --build
+```
 
 ## Links
 

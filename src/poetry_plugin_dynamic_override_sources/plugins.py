@@ -11,7 +11,7 @@ from poetry.plugins.plugin import Plugin
 from poetry.poetry import Poetry
 from poetry.repositories.legacy_repository import LegacyRepository
 from poetry.repositories.pypi_repository import PyPiRepository
-from poetry.repositories.repository_pool import Priority
+from poetry.repositories.repository_pool import PrioritizedRepository, Priority
 
 PYPI_SOURCE = 'PyPI'
 
@@ -19,52 +19,57 @@ PYPI_SOURCE = 'PyPI'
 def parse_environment_variables() -> dict:
     """ Parse environment variables for configuration of source URLs.
 
-    `PIP_INDEX_URL` will override PyPI source
     `POETRY_SOURCE_FOO_URL` will override the URL for source `FOO`
     """
     source_urls = {}
 
     for key, val in os.environ.items():
-        if key == 'PIP_INDEX_URL':
-            source_urls[PYPI_SOURCE] = val
-
-        match = re.match('^POETRY_SOURCE_(.*)_URL', key)
+        match = re.match('^POETRY_SOURCE_(.*)_URL$', key)
         if match:
             source_name = match.groups()[0].lower().replace('_', '-')
+
+            if source_name == 'pypi':
+                # this is a special case
+                source_name = PYPI_SOURCE
+
             source_urls[source_name] = val
 
     return source_urls
 
 
 class DynamicOverrideSourcesPlugin(Plugin):
-    # If pypi.org and common mirroring/pull-through-cache software used the same
-    # standard API this plugin could simply modify the URL used by
-    # PyPiRepository. Unfortunately, PyPiRepository uses the unstable
-    # non-standard warehouse JSON API. To ensure maximum mirror compatibility
-    # through standards compliance we replace the pypi.org PyPiRepository with a
-    # (modified) LegacyRepository - which uses the PEP 503 API.
+    """
+    Allow dynamic overrides of repository URLs from environment variables.
+
+    For mirror compatibility, LegacyRepository (PEP 503 API) is used instead of PyPiRepository.
+    """
     def activate(self, poetry: Poetry, io: IO):
+
+        pip_index_url = os.environ.get('PIP_INDEX_URL')
 
         source_urls = parse_environment_variables()
 
-        for source_name, url in source_urls.items():
-            # get the existing repository
-            repo = poetry.pool._repositories.get(source_name)
-            if repo is None:
-                continue
+        for prioritized_repo in poetry.pool._sorted_repositories:
+            repo = prioritized_repo.repository
 
-            # remove the existing repo and then add a new one to replace it
-            poetry.pool.remove_repository(source_name)
-            poetry.pool.add_repository(
-                repository=SourceStrippedLegacyRepository(
-                    source_name,
-                    url,
-                    config=poetry.config,
-                    disable_cache=repo.repository._disable_cache,
-                ),
-                default=(repo.priority == Priority.DEFAULT),
-                secondary=(repo.priority == Priority.SECONDARY),
-            )
+            # if pip_index_url is set, override all repository urls.
+            # otherwise, only override repository urls for those with an env var set.
+            replace_with_url = pip_index_url if pip_index_url else source_urls.get(repo.name)
+
+            if replace_with_url:
+                # remove the existing repo and then add a new one to replace it
+                poetry.pool.remove_repository(repo.name)
+                poetry.pool.add_repository(
+                    repository=SourceStrippedLegacyRepository(
+                        repo.name,
+                        replace_with_url,
+                        config=poetry.config,
+                        disable_cache=getattr(repo, '_disable_cache', None),
+                    ),
+                    default=(prioritized_repo.priority == Priority.DEFAULT),
+                    secondary=(prioritized_repo.priority == Priority.SECONDARY),
+                )
+
 
 class SourceStrippedLegacyRepository(LegacyRepository):
     def __init__(

@@ -1,13 +1,14 @@
 [tool.poetry]
 name = "poetry-plugin-dynamic-override-sources"
-version = "0.0.2"
+version = "0.0.3"
 description = "Poetry plugin to dynamically override sources for private mirroring"
 authors = [
+  "Dustin Burke <dustin@datarobot.com>",
   "Jacob Henner <code@ventricle.us>",
   "Hugh Baxter <hughdbaxter@gmail.com>",
-  "Dustin Burke <dustin@datarobot.com>",
 ]
 readme = "README.md"
+include = ["CHANGELOG.md"]
 
 license = "BSD-3-Clause"
 keywords = ["packaging", "poetry", "pypi", "pip"]
