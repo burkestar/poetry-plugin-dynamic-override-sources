@@ -7,6 +7,8 @@ authors = [
   "Hugh Baxter <hughdbaxter@gmail.com>",
   "Dustin Burke <dustin@datarobot.com>",
 ]
+readme = "README.md"
+
 license = "BSD-3-Clause"
 keywords = ["packaging", "poetry", "pypi", "pip"]
 
@@ -25,6 +27,11 @@ isort = "^5.10.1"
 flake8 = "^3.9.2"
 pre-commit = "^2.20.0"
 pytest = "^8.2.1"
+
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
 
 [tool.isort]
 profile = "black"
