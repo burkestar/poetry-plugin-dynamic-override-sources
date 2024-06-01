@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poetry-plugin-dynamic-override-sources"
-version = "0.0.1"
+version = "0.0.2"
 description = "Poetry plugin to dynamically override sources for private mirroring"
 authors = [
   "Jacob Henner <code@ventricle.us>",
