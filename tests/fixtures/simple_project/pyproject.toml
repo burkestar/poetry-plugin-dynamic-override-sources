@@ -1,0 +1,35 @@
+# adapted from https://github.com/python-poetry/poetry-plugin-bundle/tree/main/tests/fixtures/simple_project
+
+[tool.poetry]
+name = "simple-project"
+version = "1.2.3"
+description = "A simple project for testing."
+authors = [
+    "Dustin Burke <dustin@datarobot.com>"
+]
+license = "MIT"
+
+homepage = "https://example.org"
+repository = "https://github.com/burkestar/simple-project"
+
+keywords = ["python", "poetry"]
+
+classifiers = [
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+foo = "^1.0.0"
+
+[[tool.poetry.source]]
+name = "private-source"
+url = "https://some.private.repo/artifacts/"
+
+[tool.poetry.group.dev]
+optional = true
+dependencies = {}
+
+[tool.poetry.scripts]
+foo = "foo:bar"

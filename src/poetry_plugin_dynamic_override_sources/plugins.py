@@ -30,7 +30,7 @@ def parse_environment_variables() -> dict:
 
         match = re.match('^POETRY_SOURCE_(.*)_URL', key)
         if match:
-            source_name = match.groups()[0]
+            source_name = match.groups()[0].lower().replace('_', '-')
             source_urls[source_name] = val
 
     return source_urls
@@ -50,8 +50,7 @@ class DynamicOverrideSourcesPlugin(Plugin):
         for source_name, url in source_urls.items():
             # get the existing repository
             repo = poetry.pool._repositories.get(source_name)
-
-            if repo is None or not isinstance(repo.repository, PyPiRepository):
+            if repo is None:
                 continue
 
             # remove the existing repo and then add a new one to replace it
