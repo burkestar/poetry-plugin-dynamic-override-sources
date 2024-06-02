@@ -9,9 +9,9 @@ from poetry.core.constraints.version import Version
 from poetry.core.packages.package import Package
 from poetry.plugins.plugin import Plugin
 from poetry.poetry import Poetry
+from poetry.repositories.http_repository import HTTPRepository
 from poetry.repositories.legacy_repository import LegacyRepository
-from poetry.repositories.pypi_repository import PyPiRepository
-from poetry.repositories.repository_pool import PrioritizedRepository, Priority
+from poetry.repositories.repository_pool import Priority
 
 PYPI_SOURCE = 'PyPI'
 
@@ -47,16 +47,26 @@ class DynamicOverrideSourcesPlugin(Plugin):
 
         pip_index_url = os.environ.get('PIP_INDEX_URL')
 
+        if pip_index_url:
+            io.write_line('[plugin] Overriding all repository urls using PIP_INDEX_URL')
+
         source_urls = parse_environment_variables()
 
         for prioritized_repo in poetry.pool._sorted_repositories:
             repo = prioritized_repo.repository
+
+            if not isinstance(repo, HTTPRepository):
+                # skip repositories that don't make web requests where the URL override is
+                # irrelevant, such as InstalledRepository, LockfileRepository, etc.
+                continue
 
             # if pip_index_url is set, override all repository urls.
             # otherwise, only override repository urls for those with an env var set.
             replace_with_url = pip_index_url if pip_index_url else source_urls.get(repo.name)
 
             if replace_with_url:
+                io.write_line(f'[plugin] Replacing url for repo {repo.name} ({replace_with_url})')
+
                 # remove the existing repo and then add a new one to replace it
                 poetry.pool.remove_repository(repo.name)
                 poetry.pool.add_repository(

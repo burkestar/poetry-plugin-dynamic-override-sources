@@ -7,6 +7,7 @@ from cleo.io.io import IO
 from poetry.config.config import Config
 from poetry.factory import Factory
 from poetry.poetry import Poetry
+from poetry.repositories.http_repository import HTTPRepository
 from poetry.repositories.repository import Repository
 
 from poetry_plugin_dynamic_override_sources.plugins import (
@@ -22,7 +23,9 @@ def config() -> Config:
 
 @pytest.fixture()
 def io() -> BufferedIO:
-    return BufferedIO()
+    _io = BufferedIO()
+    yield _io
+    _io.clear()
 
 
 @pytest.fixture()
@@ -73,6 +76,13 @@ def test_dynamic_override_sources_plugin_without_env_vars_set(poetry_factory, io
     # with the original source url (no override was provided) - note the trailing slash is stripped
     assert repo.url == source_url[:-1]
 
+    console_output = io.fetch_output()
+
+    # should not show anything since no overrides were set
+    assert '[plugin] Replacing url for repo ' not in console_output
+    assert '[plugin] Overriding all repository urls using PIP_INDEX_URL' not in console_output
+
+
 
 def test_dynamic_override_sources_plugin_with_env_vars_set(poetry_factory, io, monkeypatch):
     proxy_source_url = 'https://some.proxy/'
@@ -95,6 +105,12 @@ def test_dynamic_override_sources_plugin_with_env_vars_set(poetry_factory, io, m
     # with the repo's url replaced by the proxy override instead (trailing slash is stripped)
     assert repo.url == proxy_source_url[:-1]
 
+    console_output = io.fetch_output()
+    assert '[plugin] Replacing url for repo private-source (https://some.proxy/)' in console_output
+
+    # should not show this
+    assert '[plugin] Overriding all repository urls using PIP_INDEX_URL' not in console_output
+
 
 def test_dynamic_override_sources_plugin_with_pip_index_url(poetry_factory, io, monkeypatch):
     pip_index_url = 'https://proxy.pypi.org/'
@@ -105,9 +121,9 @@ def test_dynamic_override_sources_plugin_with_pip_index_url(poetry_factory, io, 
 
     poetry: Poetry = poetry_factory()
 
-    # add an extra repo
-    repository = Repository("repo")
-    poetry.pool.add_repository(repository)
+    # add some extra repository which should not be modified
+    non_http_repository = Repository("repo")
+    poetry.pool.add_repository(non_http_repository)
 
     plugin = DynamicOverrideSourcesPlugin()
     plugin.activate(poetry, io)
@@ -121,6 +137,13 @@ def test_dynamic_override_sources_plugin_with_pip_index_url(poetry_factory, io, 
     # and a repository is created from the package's source
     assert [repo for repo in poetry.pool.repositories if repo.name == source_name]
 
-    # and all repository urls were overridden
+    # and all eligible repository urls were overridden
     for repo in poetry.pool.repositories:
-        assert repo.url == pip_index_url[:-1], repo.url
+        if getattr(repo, 'url', None):
+            assert repo.url == pip_index_url[:-1], repo.url
+        else:
+            assert not isinstance(repo, HTTPRepository)
+
+    console_output = io.fetch_output()
+    assert '[plugin] Overriding all repository urls using PIP_INDEX_URL' in console_output
+    assert '[plugin] Replacing url for repo private-source (https://proxy.pypi.org/)' in console_output

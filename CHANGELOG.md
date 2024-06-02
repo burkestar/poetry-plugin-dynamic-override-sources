@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.6
+
+- Only override repositories of type HTTPRepository which make web requests.
+- Log to the console that the plugin is overriding repository urls so users can diagnose issues.
+
 ## 0.0.5
 
 - Improve packaging to include link to repo and changelog
